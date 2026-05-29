@@ -1,0 +1,18 @@
+# Lokales profiles.yml-Beispiel (nicht committen, wenn echte Credentials drin sind!)
+#
+# Speicherort lokal: ~/.dbt/profiles.yml
+# In dbt Cloud werden Credentials über das Projekt-Setup hinterlegt, NICHT über diese Datei.
+
+capitol_dwh:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      keyfile: /pfad/zu/capitol-schulung-sa.json
+      project: capitol-schulung
+      dataset: tn_p01            # <-- eigenes persönliches Dataset eintragen (tn_pNN)
+      threads: 4
+      timeout_seconds: 300
+      location: EU
+      priority: interactive

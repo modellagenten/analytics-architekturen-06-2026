@@ -1,0 +1,149 @@
+version: 2
+
+sources:
+  - name: capitol_raw
+    description: |
+      Roh-Daten der Capitol Versicherung, die von einfachen Python-Lade-Skripten
+      (`schulungsumgebung/analytics-architekturen/load_scripts/`) direkt nach
+      BigQuery geladen werden. Liegen in EINEM gemeinsamen, read-only Dataset
+      `capitol_raw`, das der Trainer einmalig befüllt. Alle Teilnehmenden lesen
+      es; gebaut wird jeweils ins persönliche Dataset (tn_pNN, dbt-Dev-Schema).
+    database: "{{ env_var('GCP_PROJECT', 'capitol-schulung') }}"
+    schema: capitol_raw
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 72, period: hour}
+
+    tables:
+      # ─── Gruppe A: Vertrags-Stamm (Mainframe-Parquet, Full Load) ─────
+      - name: vertraege_raw
+        description: "Bestandsverträge aus dem Mainframe-Export (Parquet)"
+        columns:
+          - name: vertrag_id
+            description: "Interne Vertrags-ID"
+            tests:
+              - not_null
+              - unique
+          - name: vsnr
+            description: "Versicherungsschein-Nummer"
+          - name: kunde_id
+            description: "Versicherungsnehmer (FK zu kunden_raw.kunde_id)"
+          - name: tarif_code
+            description: "Tarif-Variante (HRBA, KVK1, ...)"
+          - name: beginn_datum
+            description: "Vertragsbeginn (DATE)"
+          - name: ende_datum
+            description: "Vertragsende (DATE)"
+          - name: praemie_jahres_eur
+            description: "Jahresprämie EUR"
+          - name: status_code
+            description: "A=aktiv, I=inaktiv, S=storniert, X=Sonder"
+            tests:
+              - accepted_values:
+                  values: ['A', 'I', 'S', 'X']
+
+      # ─── Gruppe B: Schaden-Events (API, Incremental Append) ─────────
+      - name: schaden_events_raw
+        description: "Insert-Only Schaden-Events aus der FastAPI"
+        columns:
+          - name: schaden_event_id
+            tests:
+              - not_null
+              - unique
+          - name: schaden_id
+          - name: vertrag_id
+          - name: event_ts
+            description: "Zeitstempel des Events (ISO 8601)"
+          - name: event_typ
+            tests:
+              - accepted_values:
+                  values: ['MELDUNG', 'PRUEFUNG', 'ZAHLUNG', 'STORNO', 'KORREKTUR']
+          - name: schaden_summe_eur
+          - name: payload
+            description: "JSON mit kurz_beschreibung, sachbearbeiter, sparte"
+
+      # ─── Gruppe C: Kunden-Stamm (Postgres, Snapshot + Merge) ────────
+      - name: kunden_raw
+        description: "Kundenstamm aus dem operativen Postgres (Snapshot)"
+        columns:
+          - name: kunde_id
+            tests:
+              - not_null
+              - unique
+          - name: kundentyp
+            tests:
+              - accepted_values:
+                  values: ['P', 'F']
+          - name: nachname
+          - name: vorname
+          - name: firmenname
+          - name: ust_id
+          - name: geburtsdatum
+          - name: geschlecht
+          - name: strasse_hsnr
+          - name: plz
+          - name: ort
+          - name: laender_code
+          - name: telefon
+          - name: erstellt_am
+          - name: geaendert_am
+
+      # ─── Gruppe D: Tarif-Stamm (Postgres, Full Load) ────────────────
+      - name: tarife_raw
+        description: "Monats-Tarife aus dem operativen Postgres"
+        columns:
+          - name: tarif_code
+            tests:
+              - not_null
+          - name: monat_nr
+            tests:
+              - not_null
+          - name: sparte
+          - name: praemie_monat
+          - name: gueltig_ab
+          - name: geaendert_am
+
+  # ───────────────────────────────────────────────────────────────────
+  # CDC-Streams (Übung 4) – Pub/Sub-BigQuery-Subscriptions
+  # ───────────────────────────────────────────────────────────────────
+  - name: cdc_raw
+    description: |
+      Streaming-Quellen für Übung 4. Pub/Sub-Topics werden vom Trainer-Skript
+      `pubsub_publisher.py` bespielt; BigQuery-Subscriptions schreiben jedes
+      Event als eigene Zeile (Standard-Schema mit `data` als JSON).
+    database: "{{ env_var('GCP_PROJECT', 'capitol-schulung') }}"
+    schema: cdc_raw
+    loaded_at_field: publish_time
+    freshness:
+      warn_after:  {count: 10, period: minute}
+      error_after: {count: 60, period: minute}
+
+    tables:
+      # ─── Gruppe C: Debezium-Style-Events (Source-DB-CDC) ────────────
+      - name: kunden_cdc_events
+        description: |
+          Pub/Sub-CDC-Stream im Debezium-Format. `data` enthält JSON mit
+          op (c/u/d), before, after, source.lsn, ts_ms. Eingang für Gruppe C.
+        columns:
+          - name: message_id
+            tests: [not_null]
+          - name: publish_time
+            tests: [not_null]
+          - name: data
+            description: "Debezium-Event als JSON"
+
+      # ─── Gruppe D: Domain-Events (Application-Outbox) ───────────────
+      - name: kunden_domain_events
+        description: |
+          Pub/Sub-Outbox-Stream mit fachlichen Events. `data` enthält JSON mit
+          event_id, event_type (kunde.angelegt | .adresse_geaendert |
+          .telefon_geaendert), kunde_id, payload, occurred_at, actor.
+          Eingang für Gruppe D.
+        columns:
+          - name: message_id
+            tests: [not_null]
+          - name: publish_time
+            tests: [not_null]
+          - name: data
+            description: "Domain-Event als JSON"

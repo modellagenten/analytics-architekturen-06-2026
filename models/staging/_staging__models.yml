@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  # ─── Gruppe A ───────────────────────────────────────────────────────
+  - name: stg_vertraege
+    description: "Bereinigte Vertrags-Sätze aus dem Mainframe-Export"
+    columns:
+      - name: vertrag_id
+        description: "Interne Vertrags-ID (Primärschlüssel)"
+        # TODO: tests ergänzen (not_null, unique)
+      - name: status_code
+        description: "A=aktiv, I=inaktiv, S=storniert, X=Sonder"
+        # TODO: accepted_values-Test
+
+  # ─── Gruppe B ───────────────────────────────────────────────────────
+  - name: stg_schaden_events
+    description: "Inkrementelle Schaden-Events aus der FastAPI"
+    columns:
+      - name: schaden_event_id
+        # TODO: not_null, unique
+      - name: vertrag_id
+        # TODO: relationships-Test zu stg_vertraege.vertrag_id
+
+  # ─── Gruppe C ───────────────────────────────────────────────────────
+  - name: stg_kunden
+    description: "Kundenstamm (Privat + Firmen)"
+    columns:
+      - name: kunde_id
+        # TODO: not_null, unique
+      - name: kundentyp
+        # TODO: accepted_values P, F
+
+  # ─── Gruppe D ───────────────────────────────────────────────────────
+  - name: stg_tarife
+    description: "Monatliche Tarif-Stammdaten"
+    # TODO: tests:
+    #   - dbt_utils.unique_combination_of_columns:
+    #       combination_of_columns: [tarif_code, monat_nr]
+    columns:
+      - name: tarif_code
+        # TODO: not_null
+      - name: monat_nr
+        # TODO: not_null

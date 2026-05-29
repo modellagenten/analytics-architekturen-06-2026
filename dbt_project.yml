@@ -1,0 +1,35 @@
+name: 'capitol_dwh'
+version: '1.0.0'
+config-version: 2
+
+profile: 'capitol_dwh'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  capitol_dwh:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+    raw_vault:
+      +materialized: incremental
+      +schema: raw_vault
+      +on_schema_change: append_new_columns
+    business_vault:
+      +materialized: table
+      +schema: business_vault
