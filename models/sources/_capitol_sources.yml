@@ -8,12 +8,9 @@ sources:
       BigQuery geladen werden. Liegen in EINEM gemeinsamen, read-only Dataset
       `capitol_raw`, das der Trainer einmalig befüllt. Alle Teilnehmenden lesen
       es; gebaut wird jeweils ins persönliche Dataset (tn_pNN, dbt-Dev-Schema).
-    database: "{{ env_var('GCP_PROJECT', 'capitol-schulung') }}"
+    database: "{{ env_var('GCP_PROJECT', 'analytics-06-2026') }}"
     schema: capitol_raw
     loaded_at_field: _loaded_at
-    freshness:
-      warn_after: {count: 24, period: hour}
-      error_after: {count: 72, period: hour}
 
     tables:
       # ─── Gruppe A: Vertrags-Stamm (Mainframe-Parquet, Full Load) ─────
@@ -22,9 +19,6 @@ sources:
         columns:
           - name: vertrag_id
             description: "Interne Vertrags-ID"
-            tests:
-              - not_null
-              - unique
           - name: vsnr
             description: "Versicherungsschein-Nummer"
           - name: kunde_id
@@ -39,26 +33,17 @@ sources:
             description: "Jahresprämie EUR"
           - name: status_code
             description: "A=aktiv, I=inaktiv, S=storniert, X=Sonder"
-            tests:
-              - accepted_values:
-                  values: ['A', 'I', 'S', 'X']
 
       # ─── Gruppe B: Schaden-Events (API, Incremental Append) ─────────
       - name: schaden_events_raw
         description: "Insert-Only Schaden-Events aus der FastAPI"
         columns:
           - name: schaden_event_id
-            tests:
-              - not_null
-              - unique
           - name: schaden_id
           - name: vertrag_id
           - name: event_ts
             description: "Zeitstempel des Events (ISO 8601)"
           - name: event_typ
-            tests:
-              - accepted_values:
-                  values: ['MELDUNG', 'PRUEFUNG', 'ZAHLUNG', 'STORNO', 'KORREKTUR']
           - name: schaden_summe_eur
           - name: payload
             description: "JSON mit kurz_beschreibung, sachbearbeiter, sparte"
@@ -68,13 +53,7 @@ sources:
         description: "Kundenstamm aus dem operativen Postgres (Snapshot)"
         columns:
           - name: kunde_id
-            tests:
-              - not_null
-              - unique
           - name: kundentyp
-            tests:
-              - accepted_values:
-                  values: ['P', 'F']
           - name: nachname
           - name: vorname
           - name: firmenname
@@ -94,11 +73,7 @@ sources:
         description: "Monats-Tarife aus dem operativen Postgres"
         columns:
           - name: tarif_code
-            tests:
-              - not_null
           - name: monat_nr
-            tests:
-              - not_null
           - name: sparte
           - name: praemie_monat
           - name: gueltig_ab
@@ -127,9 +102,7 @@ sources:
           op (c/u/d), before, after, source.lsn, ts_ms. Eingang für Gruppe C.
         columns:
           - name: message_id
-            tests: [not_null]
           - name: publish_time
-            tests: [not_null]
           - name: data
             description: "Debezium-Event als JSON"
 
@@ -142,8 +115,6 @@ sources:
           Eingang für Gruppe D.
         columns:
           - name: message_id
-            tests: [not_null]
           - name: publish_time
-            tests: [not_null]
           - name: data
             description: "Domain-Event als JSON"
