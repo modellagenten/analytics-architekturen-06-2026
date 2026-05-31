@@ -8,7 +8,7 @@ sources:
       BigQuery geladen werden. Liegen in EINEM gemeinsamen, read-only Dataset
       `capitol_raw`, das der Trainer einmalig befüllt. Alle Teilnehmenden lesen
       es; gebaut wird jeweils ins persönliche Dataset (tn_pNN, dbt-Dev-Schema).
-    database: "{{ env_var('GCP_PROJECT', 'analytics-06-2026') }}"
+    database: analytics-06-2026
     schema: capitol_raw
     loaded_at_field: _loaded_at
 
