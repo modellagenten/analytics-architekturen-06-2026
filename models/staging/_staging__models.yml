@@ -6,8 +6,15 @@ models:
     columns:
       - name: vertrag_id
         description: "Interne Vertrags-ID (Primärschlüssel)"
+        data_tests: 
+          - not_null
+          - unique
       - name: status_code
         description: "A=aktiv, I=inaktiv, S=storniert, X=Sonder"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['A', 'I', 'S', 'X']
 
   - name: stg_schaden_events
     description: "Inkrementelle Schaden-Events aus der FastAPI"
