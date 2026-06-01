@@ -20,6 +20,9 @@ models:
     description: "Inkrementelle Schaden-Events aus der FastAPI"
     columns:
       - name: schaden_event_id
+        tests: 
+        - unique 
+        - not_null
       - name: vertrag_id
 
   - name: stg_kunden
