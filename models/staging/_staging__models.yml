@@ -30,8 +30,17 @@ models:
     description: "Kundenstamm (Privat + Firmen)"
     columns:
       - name: kunde_id
+        data_tests:
+          - unique
+          - not_null
       - name: kundentyp
-
+        data_tests:
+          - accepted_values:
+              values: ['F', 'P']
+      - name: anzeigename
+        data_tests:
+          - not_null
+          
   - name: stg_tarife
     description: "Monatliche Tarif-Stammdaten"
     columns:

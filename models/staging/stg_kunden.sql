@@ -21,5 +21,6 @@ select
     telefon,
     erstellt_am,
     geaendert_am,
-    _loaded_at as load_ts
+    _loaded_at as load_ts,
+    IF(kundentyp='F', firmenname, CONCAT(nachname, ",", vorname)) as anzeigename
 from src
