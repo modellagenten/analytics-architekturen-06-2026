@@ -24,6 +24,11 @@ models:
           - unique
           - not_null
       - name: vertrag_id
+        tests:
+          - relationships:
+              to: ref('stg_vertraege')
+              field: vertrag_id
+
 
 
   - name: stg_kunden
