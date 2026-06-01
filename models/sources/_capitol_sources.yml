@@ -87,7 +87,7 @@ sources:
       Streaming-Quellen für Übung 4. Pub/Sub-Topics werden vom Trainer-Skript
       `pubsub_publisher.py` bespielt; BigQuery-Subscriptions schreiben jedes
       Event als eigene Zeile (Standard-Schema mit `data` als JSON).
-    database: "{{ env_var('GCP_PROJECT', 'capitol-schulung') }}"
+    database: analytics-06-2026
     schema: cdc_raw
     loaded_at_field: publish_time
     freshness:
