@@ -23,6 +23,19 @@ models:
 
   - name: stg_tarife
     description: "Monatliche Tarif-Stammdaten"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [tarif_code, monat_nr]
     columns:
       - name: tarif_code
+        tests:
+        - not_null
       - name: monat_nr
+        tests:
+        - not_null
+      - name: quartal
+        tests: 
+          - not_null
+
+        
+
