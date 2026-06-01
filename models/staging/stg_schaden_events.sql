@@ -17,6 +17,8 @@ select
     vertrag_id,
     event_typ,
     cast(schaden_summe_eur as numeric) as schaden_summe_eur,
-    payload,
-    _loaded_at as load_ts
+    JSON_VALUE(JSON_VALUE(payload), '$.kurz_beschreibung') as kurz_beschreibung,
+    JSON_VALUE(JSON_VALUE(payload), '$.sachbearbeiter') as sachbearbeiter,
+    JSON_VALUE(JSON_VALUE(payload), '$.sparte') as sparte,
+    cast(_loaded_at as timestamp) as load_ts
 from src
