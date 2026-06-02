@@ -3,7 +3,6 @@
 with src as (
     select distinct
         {{ get_hash_key(['schaden_id']) }} as hk_schaden,
-
         sum(schaden_summe_eur) over (partition by schaden_id) as schaden_summe_gesamt_eur,
         load_ts,
         'stg_schaden_events' as record_source
