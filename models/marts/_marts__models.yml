@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: dim_kunde_aktuell
+    columns:
+      - name: kunde_id
+        tests:
+          - not_null
+          - unique
+      - name: plz
+        tests:
+          - not_null
+      - name: ort
+        tests:
+          - not_null
+      - name: telefon
+        tests:
+          - not_null
