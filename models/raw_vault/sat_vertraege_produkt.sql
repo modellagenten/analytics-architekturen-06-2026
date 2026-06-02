@@ -1,0 +1,1 @@
+{{ macro_sat('vertraege', 'produkt', 'vertrag_id', ['tarif_code', 'produkt_name']) }}

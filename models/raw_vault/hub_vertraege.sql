@@ -1,0 +1,1 @@
+{{ macro_hub('vertraege', 'stg_vertraege', 'vertrag_id') }}

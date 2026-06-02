@@ -1,0 +1,1 @@
+{{ macro_hub('vermittler', 'stg_vertraege', 'vermittler_code') }}

@@ -1,0 +1,1 @@
+{{ macro_sat('vertraege', 'beitrag', 'vertrag_id', ['praemie_jahres_eur']) }}

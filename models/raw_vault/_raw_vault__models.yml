@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: hub_vertraege
+    columns:
+      - name: hk_vertraege
+        tests: [not_null, unique]
+      - name: vertrag_id
+        tests: [not_null]
+
+  - name: sat_vertraege_information
+    columns:
+      - name: hk_vertraege
+        tests: [not_null]
+      - name: hd_vertraege_information
+        tests: [not_null]
+
+  - name: sat_vertraege_gueltigkeit
+    columns:
+      - name: hk_vertraege
+        tests: [not_null]
+      - name: hd_vertraege_gueltigkeit
+        tests: [not_null]
+      - name: beginn_datum
+        tests: [not_null]
+      - name: ende_datum
+        tests: [not_null]
+
+  - name: link_vertraege_vermittler
+    columns:
+      - name: hk_vertraege
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('hub_vertraege')
+                field: hk_vertraege
+      - name: hk_vermittler
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('hub_vermittler')
+                field: hk_vermittler
