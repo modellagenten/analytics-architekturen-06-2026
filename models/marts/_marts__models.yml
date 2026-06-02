@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: dim_kunde_aktuell
+    columns:
+      - name: kunde_id
+        tests: [not_null, unique]
+      - name: quelle
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['batch', 'stream']
+      - name: as_of_ts
+        tests: [not_null]
