@@ -19,7 +19,7 @@ with batch as (
 
 stream_latest as (
     select
-        kunde_id, 
+        stream.kunde_id, 
         kundentyp, 
         nachname, 
         vorname, 
@@ -28,11 +28,13 @@ stream_latest as (
         plz, 
         ort, 
         telefon,
-        event_ts as as_of_ts,
+        stream.event_ts as as_of_ts,
+        batch.as_of_ts as most_recent_batch,
         'stream' as quelle
-    from {{ ref('stg_kunden_cdc') }}
-    where op != 'd'
-    qualify row_number() over (partition by kunde_id order by lsn desc) = 1
+    from {{ ref('stg_kunden_cdc') }} as stream 
+    left join (select kunde_id, as_of_ts from batch) as batch on stream.kunde_id = batch.kunde_id
+    where op != 'd' and stream.event_ts > batch.as_of_ts
+    qualify row_number() over (partition by stream.kunde_id order by stream.lsn desc) = 1
 ),
 
 unioned as (
