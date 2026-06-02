@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: hub_tarife
+    columns:
+      - name: hk_tarife
+        tests: [not_null, unique]
+      - name: bk_tarife
+        tests: [not_null]
+
+  - name: sat_tarife_stamm
+    columns:
+      - name: hk_tarife
+        tests: [not_null]
+      - name: hd_tarife_stamm
+        tests: [not_null]
+
+  - name: sat_tarife_praemie
+    columns:
+      - name: hk_tarife
+        tests: [not_null]
+      - name: hd_tarife_praemie
+        tests: [not_null]
