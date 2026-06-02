@@ -1,0 +1,1 @@
+{{ macro_sat('vertraege', 'gueltigkeit', 'vertrag_id', ['beginn_datum', 'ende_datum', 'status_code', 'storno_flag']) }}

@@ -1,0 +1,1 @@
+{{ macro_sat('vertraege', 'information', 'vertrag_id', ['vsnr']) }}
