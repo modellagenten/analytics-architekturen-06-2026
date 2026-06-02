@@ -29,7 +29,6 @@ stream_latest as (
         ort, 
         telefon,
         stream.event_ts as as_of_ts,
-        batch.as_of_ts as most_recent_batch,
         'stream' as quelle
     from {{ ref('stg_kunden_cdc') }} as stream 
     left join (select kunde_id, as_of_ts from batch) as batch on stream.kunde_id = batch.kunde_id
