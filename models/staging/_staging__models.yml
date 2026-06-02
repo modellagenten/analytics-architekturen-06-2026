@@ -29,6 +29,11 @@ models:
           - not_null
 >>>>>>> 697fc834fa13fe56a57ea3ab68ee767200103350
       - name: vertrag_id
+        tests:
+          - relationships:
+              to: ref('stg_vertraege')
+              field: vertrag_id
+
 
 
   - name: stg_kunden
